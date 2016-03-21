@@ -59,7 +59,7 @@ export const fetchRecord = (id) => {
 export const RECORD_CREATING = 'RECORD_CREATING';
 export const RECORD_CREATED = 'RECORD_CREATED';
 
-export const createRecord = (record) => {
+export const createRecord = (record, fetchParameters) => {
 	return (dispatch, getState) => {
 		dispatch({
 			type: RECORD_CREATING
@@ -77,8 +77,11 @@ export const createRecord = (record) => {
 			.then(parseJSON)
 			.then(data => {
 				dispatch({
-					type: RECORD_CREATED,
-					data
+					type: RECORD_CREATED
+				});
+
+				setTimeout(() => {
+					dispatch(fetchRecords(fetchParameters));
 				});
 			});
 	}

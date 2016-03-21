@@ -174,6 +174,7 @@ class Records extends React.Component {
 		let prevPageParameters = { filter: this.props.fetchParameters.filter, offset: offset - limit, limit };
 
 		return 	<div>
+					{ this.props.children }
 					<RecordsFilter onFilterUpdated={this.onFilterUpdated.bind(this)} />
 					<Table>
 					    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>

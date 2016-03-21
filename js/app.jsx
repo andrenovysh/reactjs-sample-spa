@@ -56,8 +56,10 @@ let router = 	<Provider store={store}>
 					<Router history={browserHistory}>
 						<Route path='/' component={App}>
 							<IndexRoute component={Home} />
-							<Route path="records" component={Records} />
-							<Route path='records/new' component={CreateRecord} />
+							<Route component={Records}>
+								<Route path='records' />
+								<Route path='records/new' component={CreateRecord} />
+							</Route>
 							<Route path='records/:id' component={RecordDetails} />
 							<Route path='about' component={About} />
 							<Route path='*' component={NotFound} />

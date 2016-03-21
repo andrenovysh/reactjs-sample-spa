@@ -9,7 +9,8 @@ import { bindDispatch, increment } from '../utils';
 let mapState2Props = (state) => {
 	return {
 		creatingRecord: state.apiState.creatingRecord,
-		recordCreated: state.apiState.recordCreated
+		recordCreated: state.apiState.recordCreated,
+		fetchParameters: state.fetchParameters
 	}
 }
 
@@ -29,22 +30,15 @@ class CreateRecord extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		if(nextProps.recordCreated) {
-			this.context.router.transitionTo({
-				pathname: 'records',
-				search: ''
-			});
+			this.context.router.replace('/records');
 		}
 	}
 
 	onSave(record) {
-		this.props.createRecord(record);
+		this.props.createRecord(record, this.props.fetchParameters);
 	}
 
 	render() {
-		if(this.props.creatingRecord) {
-			return <div>Creating...</div>;
-		}
-
 		let entity = {
 			id: counter++,
 			date: new Date(),
