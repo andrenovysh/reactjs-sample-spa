@@ -1,8 +1,5 @@
 export const RECORD_MODIFIED = /*Symbol(*/'RECORD_MODIFIED'/*)*/;
 
-export const RECORD_CREATING = 'RECORD_CREATING';
-export const RECORD_CREATED = 'RECORD_CREATED';
-
 import fetch from 'isomorphic-fetch';
 
 export const RECORDS_FETCHING = 'RECORDS_FETCHING';
@@ -39,60 +36,94 @@ export const fetchRecords = (parameters) => {
 	}
 }
 
-export const RECORD_DELETING = 'RECORD_DELETING';
-export const RECORD_DELETED = 'RECORD_DELETED';
+export const RECORD_FETCHING = 'RECORD_FETCHING';
+export const RECORD_FETCHED = 'RECORD_FETCHED';
 
-export const deleteRecord = (id) => {
-	return {
-				type: RECORD_DELETED,
-				id
-			};/*);
+export const fetchRecord = (id) => {
 	return (dispatch, getState) => {
-		dispatch({type: RECORD_DELETING});
+		dispatch({
+			type: RECORD_FETCHING,
+			id: id
+		});
 
-		fetch('/records?id=' + id, { method: 'DELETE' }).then(parseJSON)
+		fetch('/records/' + id).then(parseJSON)
 			.then(data => {
 				dispatch({
-					type: RECORD_DELETED,
-					id
+					type: RECORD_FETCHED,
+					data
 				});
-			});*/
+			});
+	}	
 }
 
-export const recordCreated = (record) => {
-	return {
-		type: RECORD_CREATED,
-		record: record
-	};
-}
+export const RECORD_CREATING = 'RECORD_CREATING';
+export const RECORD_CREATED = 'RECORD_CREATED';
 
 export const createRecord = (record) => {
 	return (dispatch, getState) => {
-		dispatch({type: RECORD_CREATING});
+		dispatch({
+			type: RECORD_CREATING
+		});
+
+		var parameters = {
+			method: 'POST',
+			headers: new Headers({
+				'Content-Type': 'application/json'
+			}),
+			body: JSON.stringify(record)
+		};
+
+		fetch('/records', parameters)
+			.then(parseJSON)
+			.then(data => {
+				dispatch({
+					type: RECORD_CREATED,
+					data
+				});
+			});
 	}
 }
 
-export const recordDeleted = (id) => {
-	return {
-		type: RECORD_DELETED,
-		id: id
-	};
+export const RECORD_UPDATING = 'RECORD_UPDATING';
+export const RECORD_UPDATED = 'RECORD_UPDATED';
+
+export const updateRecord = (record, fetchParameters) => {
+	return (dispatch, getState) => {
+		dispatch({
+			type: RECORD_UPDATING
+		});
+
+		var parameters = {
+			method: 'POST',
+			headers: new Headers({
+				'Content-Type': 'application/json'
+			}),
+			body: JSON.stringify(record)
+		};
+
+		fetch('/records/' + record.id, parameters)
+			.then(parseJSON)
+			.then(data => {
+				setTimeout(() => {
+					dispatch(fetchRecords(fetchParameters));
+				});
+			});
+	}
 }
 
-export const recordSaved = (record) => {
-	return {
-		type: RECORD_MODIFIED,
-		record: record
-	};
-}
+export const RECORD_DELETED = 'RECORD_DELETED';
 
-export const FILTER_UPDATED = 'FILTER_UPDATED';
+export const deleteRecord = (id, fetchParameters) => {
+	return (dispatch, getState) => {
+		var parameters = {
+			method: 'DELETE'
+		};
 
-export const filterUpdated = (filter) => {
-	return {
-		type: FILTER_UPDATED,
-		filter: {
-			merchant: filter
-		}
+		fetch('/records/' + id, parameters)
+			.then(() => {
+				setTimeout(() => {
+					dispatch(fetchRecords(fetchParameters));
+				});
+			});
 	}
 }

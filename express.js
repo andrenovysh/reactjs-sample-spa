@@ -111,8 +111,13 @@ var store = [{
 }];
 
 function paginate (source, offset, limit) {
-	return source.slice(offset, offset + limit);
+	return source.slice(+offset, +offset + +limit);
 }
+
+var bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(express.static('build'));
 
@@ -137,21 +142,62 @@ app.get('/records', function (req, res) {
 		records = paginate(records, offset, limit);
 	}
 	
-  	res.send({ records: records, total: total });
+	setTimeout(function() {
+		res.send({ records: records, total: total });
+	}, 200);
 });
 
-app.delete('/records', function (req, res) {
+app.get('/records/:id', function (req, res) {
+	var record = store.filter(function(item) {
+		return item.id == req.params.id;
+	})[0];
+
+	setTimeout(function() {
+		res.send(record);
+	}, 200);
+});
+
+app.post('/records', function(req, res) {
+	console.log(req.body);
+	var entity = req.body;
+
+	entity.id = increment();
+
+	store.push(entity);
+
+	setTimeout(function() {
+		res.send(entity);
+	}, 200);
+})
+
+app.post('/records/:id', function (req, res) {
+	var record = store.filter(function(item) {
+		return item.id == req.params.id;
+	})[0];
+
+	record.date = req.body.date;
+	record.merchant = req.body.merchant;
+	record.amount = req.body.amount;
+	record.currency = req.body.currency;
+	record.category = req.body.category;
+
+	setTimeout(function() {
+		res.send(record);
+	}, 200);
+});
+
+app.delete('/records/:id', function (req, res) {
 	console.log(req.params);
 
-	var item = store.find(function(x) {
-		return x.id == req.params.id;
-	});
+	var record = store.filter(function(item) {
+		return item.id == req.params.id;
+	})[0];
 
-	var index = store.indexOf(item);
+	var index = store.indexOf(record);
 
 	store.splice(index, 1);
 
-	req.send();
+	res.send({});
 })
 
 app.listen(3000, function () {

@@ -26,6 +26,7 @@
   "author": "andrey.novysh",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.15.0",
     "es6-promise": "^3.1.2",
     "isomorphic-fetch": "^2.2.1",
     "material-ui": "^0.14.4",

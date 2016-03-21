@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { fetchRecords, deleteRecord, recordSaved, recordDeleted, filterUpdated, pageRequested } from '../actions';
+import { fetchRecords, updateRecord, deleteRecord, recordDeleted, filterUpdated, pageRequested } from '../actions';
 import { flexColumn, disabledRow, flexCenter } from '../styles';
 import { TextField, Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter, IconButton, FontIcon } from 'material-ui';
 import { Link } from 'react-router';
@@ -12,6 +12,7 @@ import RecordsFilter from './RecordsFilter.jsx';
 let mapState2Props = (state) => {
 	return {
 		fetchingRecords: state.apiState.fetchingRecords,
+		updatingRecord: state.apiState.updatingRecord,
 		records: state.records,
 		recordsTotal: state.recordsTotal,
 		fetchParameters: {...state.fetchParameters}
@@ -20,7 +21,7 @@ let mapState2Props = (state) => {
 
 let mapDispatch2Props = (dispatch, ownProps) => {
 	return {
-		saveRecord: bindDispatch(dispatch, recordSaved),
+		updateRecord: bindDispatch(dispatch, updateRecord), 
 		deleteRecord: bindDispatch(dispatch, deleteRecord),
 		fetchRecords: bindDispatch(dispatch, fetchRecords)
 	}
@@ -36,7 +37,7 @@ class Records extends React.Component {
 		};
 
 		this.props.fetchRecords({
-			filter: this.props.fetchParameters.merchant,
+			filter: this.props.fetchParameters.filter,
 			offset: this.props.fetchParameters.offset,
 			limit: this.props.fetchParameters.limit
 		});
@@ -49,10 +50,22 @@ class Records extends React.Component {
 	}
 
 	onSave(record) {
-		this.props.saveRecord(record);
+		this.props.updateRecord(record, {
+			filter: this.props.fetchParameters.filter,
+			offset: this.props.fetchParameters.offset,
+			limit: this.props.fetchParameters.limit
+		});
 
-		this.setState({...this.state, 
+		this.setState({...this.state,
 			editedRecord: null
+		});
+	}
+
+	onDelete(id) {
+		this.props.deleteRecord(id, {
+			filter: this.props.fetchParameters.filter,
+			offset: this.props.fetchParameters.offset,
+			limit: this.props.fetchParameters.limit
 		});
 	}
 
@@ -117,7 +130,7 @@ class Records extends React.Component {
 					        		<Link {...linkProps} to={'records/' + item.id}>Details</Link>
 					        	</TableRowColumn>
 					        	<TableRowColumn style={currentRowStyle}>
-					        		<button disabled={this.state.editedRecord} onClick={this.props.deleteRecord.bind(null, item.id)}>Delete</button>
+					        		<button disabled={this.state.editedRecord} onClick={this.onDelete.bind(this, item.id)}>Delete</button>
 					        	</TableRowColumn>
 					    	</TableRow>];
 
@@ -125,7 +138,7 @@ class Records extends React.Component {
 			if(isCurrentItemEditable) {
 				let editRow = 	<TableRow key={item.id + 'edit'} selectable={false}>
 		        					<TableRowColumn colSpan={7}>
-		        						<EditRecord style={{width: 256, margin: 'auto'}} entity={item} 
+		        						<EditRecord disabled={this.props.updatingRecord} style={{width: 256, margin: 'auto'}} entity={item} 
 		        							onSave={this.onSave.bind(this)} 
 											onCancel={this.onCancel.bind(this)} />
 									</TableRowColumn>
