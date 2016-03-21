@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { saveRecord, deleteRecord, filterUpdated, pageRequested } from '../actions';
+import { recordSaved, recordDeleted, filterUpdated, pageRequested } from '../actions';
 import { flexColumn, disabledRow, flexCenter } from '../styles';
 import { TextField, Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter, IconButton, FontIcon } from 'material-ui';
 import { Link } from 'react-router';
@@ -29,8 +29,8 @@ let mapState2Props = (state) => {
 
 let mapDispatch2Props = (dispatch) => {
 	return {
-		saveRecord: bindDispatch(dispatch, saveRecord),
-		deleteRecord: bindDispatch(dispatch, deleteRecord),
+		saveRecord: bindDispatch(dispatch, recordSaved),
+		deleteRecord: bindDispatch(dispatch, recordDeleted),
 		filterUpdated: bindDispatch(dispatch, filterUpdated),
 		pageRequested: bindDispatch(dispatch, pageRequested)
 	}
@@ -52,8 +52,8 @@ class Records extends React.Component {
 		});
 	}
 
-	onSave() {
-		this.props.saveRecord(this.state.editedRecord);
+	onSave(record) {
+		this.props.saveRecord(record);
 
 		this.setState({...this.state, 
 			editedRecord: null
@@ -83,8 +83,15 @@ class Records extends React.Component {
 
 		var rows = this.props.recordsPage.map((item, index) => {
 			let isAnyItemEdited = this.state.editedRecord;
-			let isCurrentItemEditable = this.state.editedRecord && this.state.editedRecord.id == item.id;
-			let currentRowStyle = isCurrentItemEditable ?  rowStyle : disabledRowStyle;
+			let isCurrentItemEditable = false;
+			let currentRowStyle = rowStyle;
+
+			if(this.state.editedRecord) {
+				isCurrentItemEditable = this.state.editedRecord.id == item.id;
+				if(!isCurrentItemEditable) {
+					currentRowStyle = disabledRowStyle;
+				}
+			}
 
 			var rowProps = {};
 			let linkProps = {};
@@ -106,8 +113,8 @@ class Records extends React.Component {
 					        	<TableRowColumn style={currentRowStyle}>
 					        		<Link {...linkProps} to={'records/' + item.id}>Details</Link>
 					        	</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>
-					        		<button onClick={this.props.deleteRecord(item.id)}>Delete</button>
+					        	<TableRowColumn style={currentRowStyle}>
+					        		<button disabled={this.state.editedRecord} onClick={this.props.deleteRecord.bind(null, item.id)}>Delete</button>
 					        	</TableRowColumn>
 					    	</TableRow>];
 

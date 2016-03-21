@@ -2,9 +2,12 @@ import { combineReducers } from 'redux';
 import { increment } from '../utils';
 import * as ActionTypes from '../actions';
 
+let now  = new Date();
+now.setHours(0,0,0,0);
+
 let initialRecords = [{
 	id: increment(),
-	date: new Date(),
+	date: now,
 	merchant: 'Starbucks',
 	amount: 100,
 	currency: 'USD',
@@ -12,48 +15,48 @@ let initialRecords = [{
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Coffebox',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Cafe',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Tea & Cookies',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Sunny Beach',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Hops',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
 }, {
 	id: increment(),
-	date: new Date(),
-	merchant: 'Starbucks',
+	date: now,
+	merchant: 'Om-nom-nom',
 	amount: 100,
 	currency: 'USD',
 	category: 'HI',
@@ -71,6 +74,18 @@ let filter = (state = {}, action) => {
 
 let records = (state = initialRecords, action) => {
 	switch(action.type) {
+		case ActionTypes.RECORD_DELETED: 
+			return state.filter(x => x.id != action.id);
+		case ActionTypes.RECORD_MODIFIED:
+			return state.map(x => {
+				if(x.id == action.record.id) {
+					return { ...action.record };
+				} else {
+					return x;
+				}
+			});
+		case ActionTypes.RECORD_CREATED:
+			return [...state, {...action.record}];
 		default: 
 			return state;
 	}
