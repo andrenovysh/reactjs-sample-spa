@@ -79,7 +79,6 @@ class Records extends React.Component {
 
 		const rowStyle = rowStyleDefaults;
 		const disabledRowStyle = { ...rowStyleDefaults, ...disabledRow };
-		const buttonPanelStyle = { width: 110 };
 
 		var rows = this.props.recordsPage.map((item, index) => {
 			let isAnyItemEdited = this.state.editedRecord;

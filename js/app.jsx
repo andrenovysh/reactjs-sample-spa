@@ -22,10 +22,10 @@ class App extends React.Component {
 					<div>
 						<ul>
 							<li><IndexLink to='/' activeStyle={activeLink}>Home</IndexLink></li>
-							<li><Link to='records'activeStyle={activeLink}>Records</Link></li>
-							<li><Link to='records/new' activeStyle={activeLink}>Create new record</Link></li>
-							<li><Link to='about' activeStyle={activeLink}>About</Link></li>
-							<li><Link to='notfound'>Link to not found</Link></li>
+							<li><Link to='/records'activeStyle={activeLink}>Records</Link></li>
+							<li><Link to='/records/new' activeStyle={activeLink}>Create new record</Link></li>
+							<li><Link to='/about' activeStyle={activeLink}>About</Link></li>
+							<li><Link to='/notfound'>Link to not found</Link></li>
 						</ul>
 					</div>
 					<div style={flexCenter}>{this.props.children}</div>

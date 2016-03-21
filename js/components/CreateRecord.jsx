@@ -21,7 +21,7 @@ class CreateRecord extends React.Component {
 	onSave(record) {
 		this.props.createRecord(record);
 		this.context.router.transitionTo({
-			pathname: '404',
+			pathname: 'records',
 			search: ''
 		});
 	}
