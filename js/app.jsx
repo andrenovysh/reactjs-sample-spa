@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, IndexLink, Link, hashHistory } from 'react-router';
 
-import { activeLink, contentCentered, blurIn, blurOut } from './styles';
+import { activeLink, contentCentered, blurIn, blurOut, flexCenter } from './styles';
 
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
@@ -20,29 +20,29 @@ class App extends React.Component {
 	render() {
 		return 	<div>
 					<div>
-						<li>
-							<ul><IndexLink to='/' activeStyle={activeLink}>Home</IndexLink></ul>
-							<ul><Link to='records'activeStyle={activeLink}>Records</Link></ul>
-							<ul><Link to='records/new' activeStyle={activeLink}>Create new record</Link></ul>
-							<ul><Link to='about' activeStyle={activeLink}>About</Link></ul>
-							<ul><Link to='notfound'>Link to not found</Link></ul>
-						</li>
+						<ul>
+							<li><IndexLink to='/' activeStyle={activeLink}>Home</IndexLink></li>
+							<li><Link to='records'activeStyle={activeLink}>Records</Link></li>
+							<li><Link to='records/new' activeStyle={activeLink}>Create new record</Link></li>
+							<li><Link to='about' activeStyle={activeLink}>About</Link></li>
+							<li><Link to='notfound'>Link to not found</Link></li>
+						</ul>
 					</div>
-					<div>{this.props.children}</div>
+					<div style={flexCenter}>{this.props.children}</div>
 				</div>;
 	}
 }
 
 let Home = () => {
-	return <div>React sample SPA application</div>;
+	return <h1>React sample SPA application</h1>;
 }
 
 let About = () => {
-	return <div>Just small demo project.</div>;	
+	return <h1>Just small demo project.</h1>;	
 }
 
 let NotFound = () => {
-	return <div>Oops. Something was there. Or not...</div>;
+	return <h1>Oops. Something was there. Or not...</h1>;
 }
 
 import Records from './components/Records.jsx';

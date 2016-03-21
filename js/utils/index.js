@@ -24,6 +24,12 @@ export const validateAll = (validators, state) => {
 	}, {});
 }
 
+export const bindDispatch = (dispatch, actionCreator) => {
+	return (...args) => {
+		dispatch(actionCreator(...args));
+	}
+}
+
 export const categoryItems =  [
 		{ value: 'AK', name: 'Alaska' }, 
 		{ value: 'HI', name: 'Hawaii' },

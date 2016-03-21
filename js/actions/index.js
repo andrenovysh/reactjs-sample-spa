@@ -22,3 +22,26 @@ export const saveRecord = (record) => {
 		record: record
 	};
 }
+
+export const FILTER_UPDATED = 'FILTER_UPDATED';
+
+export const filterUpdated = (filter) => {
+	return {
+		type: FILTER_UPDATED,
+		filter: {
+			merchant: filter
+		}
+	}
+}
+
+export const PAGE_REQUESTED = 'PAGE_REQUESTED';
+
+export const pageRequested = (offset, limit) => {
+	return {
+		type: PAGE_REQUESTED,
+		parameters: {
+			offset,
+			limit
+		}
+	}
+}

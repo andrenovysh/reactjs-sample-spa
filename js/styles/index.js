@@ -3,6 +3,11 @@ export const flexColumn = {
 	flexDirection: 'column'
 }
 
+export const flexCenter = {
+	display: 'flex',
+	justifyContent: 'center'
+}
+
 export const activeLink = {
 	color: 'red'
 }

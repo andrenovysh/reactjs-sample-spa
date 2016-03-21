@@ -1,27 +1,38 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { saveRecord, deleteRecord } from '../actions';
-import { flexColumn, disabledRow } from '../styles';
-import { TextField, Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody } from 'material-ui';
+import { saveRecord, deleteRecord, filterUpdated, pageRequested } from '../actions';
+import { flexColumn, disabledRow, flexCenter } from '../styles';
+import { TextField, Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter, IconButton, FontIcon } from 'material-ui';
 import { Link } from 'react-router';
-import { categoryItems } from '../utils'
+import { categoryItems, bindDispatch } from '../utils'
 
 import EditRecord from './EditRecord.jsx';
+import RecordsFilter from './RecordsFilter.jsx';
+
+let paginate = (source, offset, limit) => {
+	return source.slice(offset, offset + limit);
+}
 
 let mapState2Props = (state) => {
+	let filtered = state.records;
+
+	if(state.filter.merchant) {
+		filtered = filtered.filter(x => x.merchant && x.merchant.indexOf(state.filter.merchant) >= 0);
+	}
+
 	return {
-		records: state.records
+		records: filtered,
+		recordsPage: paginate(filtered, state.page.offset, state.page.limit),
+		page: {...state.page}
 	}
 }
 
 let mapDispatch2Props = (dispatch) => {
 	return {
-		saveRecord: (record) => {
-			dispatch(saveRecord(record));
-		},
-		deleteRecord: (id) => {
-			dispatch(deleteRecord(id));
-		}
+		saveRecord: bindDispatch(dispatch, saveRecord),
+		deleteRecord: bindDispatch(dispatch, deleteRecord),
+		filterUpdated: bindDispatch(dispatch, filterUpdated),
+		pageRequested: bindDispatch(dispatch, pageRequested)
 	}
 }
 
@@ -55,6 +66,10 @@ class Records extends React.Component {
 		});
 	}
 
+	onPageClick() {
+
+	}
+
 	render() {
 		const rowStyleDefaults = {
 			textAlign: 'center',
@@ -62,22 +77,19 @@ class Records extends React.Component {
 			width: '14.2%'
 		};
 
-		let rowStyle = rowStyleDefaults;
-		let editedRowStyle = rowStyleDefaults;
+		const rowStyle = rowStyleDefaults;
+		const disabledRowStyle = { ...rowStyleDefaults, ...disabledRow };
+		const buttonPanelStyle = { width: 110 };
 
-		if(this.state.editedRecord) {
-			rowStyle = { ...rowStyleDefaults, ...disabledRow };
-		}
+		var rows = this.props.recordsPage.map((item, index) => {
+			let isAnyItemEdited = this.state.editedRecord;
+			let isCurrentItemEditable = this.state.editedRecord && this.state.editedRecord.id == item.id;
+			let currentRowStyle = isCurrentItemEditable ?  rowStyle : disabledRowStyle;
 
-		const buttonPanelStyle = {
-			width: 110
-		};
-
-		var rows = this.props.records.map((item, index) => {
 			var rowProps = {};
 			let linkProps = {};
 
-			if(!this.state.editedRecord) {
+			if(!isAnyItemEdited) {
 				rowProps.onDoubleClick = this.onEdit.bind(this, item);
 			} else {
 				rowProps.selectable = false;
@@ -86,12 +98,12 @@ class Records extends React.Component {
 
 			let category = categoryItems.find(x => x.value == item.category);
 			let result = 	[<TableRow key={item.id} {...rowProps}>
-					        	<TableRowColumn style={rowStyle}>{item.date.toDateString()}</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>{item.merchant}</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>{item.amount}</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>{item.currency}</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>{category && category.name}</TableRowColumn>
-					        	<TableRowColumn style={rowStyle}>
+					        	<TableRowColumn style={currentRowStyle}>{item.date.toDateString()}</TableRowColumn>
+					        	<TableRowColumn style={currentRowStyle}>{item.merchant}</TableRowColumn>
+					        	<TableRowColumn style={currentRowStyle}>{item.amount}</TableRowColumn>
+					        	<TableRowColumn style={currentRowStyle}>{item.currency}</TableRowColumn>
+					        	<TableRowColumn style={currentRowStyle}>{category && category.name}</TableRowColumn>
+					        	<TableRowColumn style={currentRowStyle}>
 					        		<Link {...linkProps} to={'records/' + item.id}>Details</Link>
 					        	</TableRowColumn>
 					        	<TableRowColumn style={rowStyle}>
@@ -99,11 +111,11 @@ class Records extends React.Component {
 					        	</TableRowColumn>
 					    	</TableRow>];
 
-			let isCurrentItemEditable = this.state.editedRecord && this.state.editedRecord.id == item.id;
+			
 			if(isCurrentItemEditable) {
 				let editRow = 	<TableRow key={item.id + 'edit'} selectable={false}>
 		        					<TableRowColumn colSpan={7}>
-		        						<EditRecord style={{width: 200}} entity={item} 
+		        						<EditRecord style={{width: 256, margin: 'auto'}} entity={item} 
 		        							onSave={this.onSave.bind(this)} 
 											onCancel={this.onCancel.bind(this)} />
 									</TableRowColumn>
@@ -120,22 +132,55 @@ class Records extends React.Component {
 			textAlign: 'center'
 		};
 
-		return 	<Table>
-				    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
-				    	<TableRow>
-				        	<TableHeaderColumn style={style}>Date</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Merchant</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Amount</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Currency</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Category</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Details</TableHeaderColumn>
-				        	<TableHeaderColumn style={style}>Actions</TableHeaderColumn>
-				    	</TableRow>
-				    </TableHeader>
-				    <TableBody displayRowCheckbox={false}>
-				    	{ rows }
-					</TableBody>
-				</Table>;
+		const styles = {
+			footerContent: {
+				float: 'right'
+			},
+			footerText: {
+				float: 'right',
+				paddingTop: 16,
+				height: 16
+			}
+		};
+
+		let offset = this.props.page.offset;
+		let limit = this.props.page.limit;
+		let total = this.props.records.length;
+
+		return 	<div>
+					<RecordsFilter onFilterUpdated={this.props.filterUpdated} />
+					<Table>
+					    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+					    	<TableRow>
+					        	<TableHeaderColumn style={style}>Date</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Merchant</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Amount</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Currency</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Category</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Details</TableHeaderColumn>
+					        	<TableHeaderColumn style={style}>Actions</TableHeaderColumn>
+					    	</TableRow>
+					    </TableHeader>
+					    <TableBody displayRowCheckbox={false}>
+					    	{ rows }
+						</TableBody>
+						<TableFooter>
+							<TableRow>
+								<TableRowColumn style={styles.footerContent}>
+								<IconButton disabled={offset === 0} onClick={this.props.pageRequested.bind(null, offset - limit, limit)}>
+									<FontIcon className="material-icons">{'<'}</FontIcon>
+								</IconButton>
+								<IconButton disabled={offset + limit >= total} onClick={this.props.pageRequested.bind(null, offset + limit, limit)}>
+									<FontIcon className="material-icons">{'>'}</FontIcon>
+								</IconButton>
+								</TableRowColumn>
+								<TableRowColumn style={styles.footerText}>
+									{Math.min((offset + 1), total) + '-' + Math.min((offset + limit), total) + ' of ' + total}
+								</TableRowColumn>
+							</TableRow>
+						</TableFooter>
+					</Table>
+				</div>;
 		;
 	}
 }
