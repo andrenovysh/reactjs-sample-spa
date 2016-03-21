@@ -44,9 +44,9 @@ class EditRecord extends React.Component {
 
 		if(error) {
 			let errors = {...this.state.errors, [name]: error};
-			this.setState({ entity , errors});
+			this.setState({ entity, errors});
 		} else {
-			let errors = {...this.state.erros};
+			let errors = {...this.state.errors};
 			delete errors[name];
 
 			this.setState({entity, errors});

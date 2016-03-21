@@ -11,13 +11,15 @@
     "babel-preset-react": "^6.5.0",
     "babel-register": "^6.7.2",
     "expect": "^1.15.2",
+    "express": "^4.13.4",
     "html-webpack-plugin": "^2.10.0",
     "mocha": "^2.4.5",
     "react-addons-test-utils": "^0.14.7",
     "webpack": "^1.12.14"
   },
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "node express.js",
+    "start:debug": "webpack-dev-server",
     "test": "mocha --compilers js:babel-register",
     "test:watch": "npm test -- --watch"
   },

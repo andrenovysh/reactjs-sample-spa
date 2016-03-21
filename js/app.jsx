@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute, IndexLink, Link, hashHistory } from 'react-router';
+import { Router, Route, IndexRoute, IndexLink, Link, browserHistory } from 'react-router';
 
 import { activeLink, contentCentered, blurIn, blurOut, flexCenter } from './styles';
 
@@ -52,7 +52,7 @@ import RecordDetails from './components/RecordDetails.jsx';
 let store = createStore(reducers);
 
 let router = 	<Provider store={store}>
-					<Router history={hashHistory}>
+					<Router history={browserHistory}>
 						<Route path='/' component={App}>
 							<IndexRoute component={Home} />
 							<Route path="records" component={Records} />
