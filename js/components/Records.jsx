@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { recordSaved, recordDeleted, filterUpdated, pageRequested } from '../actions';
+import { fetchRecords, deleteRecord, recordSaved, recordDeleted, filterUpdated, pageRequested } from '../actions';
 import { flexColumn, disabledRow, flexCenter } from '../styles';
 import { TextField, Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter, IconButton, FontIcon } from 'material-ui';
 import { Link } from 'react-router';
@@ -21,6 +21,7 @@ let mapState2Props = (state) => {
 	}
 
 	return {
+		fetchingRecords: state.apiState.fetchingRecords,
 		records: filtered,
 		recordsPage: paginate(filtered, state.page.offset, state.page.limit),
 		page: {...state.page}
@@ -30,9 +31,10 @@ let mapState2Props = (state) => {
 let mapDispatch2Props = (dispatch) => {
 	return {
 		saveRecord: bindDispatch(dispatch, recordSaved),
-		deleteRecord: bindDispatch(dispatch, recordDeleted),
+		deleteRecord: bindDispatch(dispatch, deleteRecord),
 		filterUpdated: bindDispatch(dispatch, filterUpdated),
-		pageRequested: bindDispatch(dispatch, pageRequested)
+		pageRequested: bindDispatch(dispatch, pageRequested),
+		fetchRecords: bindDispatch(dispatch, fetchRecords)
 	}
 }
 
@@ -44,6 +46,8 @@ class Records extends React.Component {
 		this.state = {
 			editedRecord: null
 		};
+
+		this.props.fetchRecords();
 	}
 
 	onEdit(record) {
@@ -71,6 +75,10 @@ class Records extends React.Component {
 	}
 
 	render() {
+		if(this.props.fetchingRecords) {
+			return <div>Loading data</div>;
+		}
+
 		const rowStyleDefaults = {
 			textAlign: 'center',
 			whiteSpace: 'nowrap',

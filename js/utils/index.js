@@ -1,11 +1,3 @@
-export const increment = ((initial) => {
-	let value = initial;
-
-	return () => {
-		return value++;
-	}
-})(1);
-
 export const requiredValidator = (value) => {
 	if(!value) {
 		return "Field is required"

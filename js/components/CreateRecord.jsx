@@ -12,6 +12,8 @@ let mapDispatch2Props = (dispatch) => {
 	}
 }
 
+let counter = 100500;
+
 class CreateRecord extends React.Component {
 	constructor(props) {
 		super(props);
@@ -28,7 +30,7 @@ class CreateRecord extends React.Component {
 
 	render() {
 		let entity = {
-			id: increment(),
+			id: counter++,
 			date: new Date(),
 			currency: 'USD'
 		};

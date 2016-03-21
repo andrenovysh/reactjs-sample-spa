@@ -2,67 +2,6 @@ import { combineReducers } from 'redux';
 import { increment } from '../utils';
 import * as ActionTypes from '../actions';
 
-let now  = new Date();
-now.setHours(0,0,0,0);
-
-let initialRecords = [{
-	id: increment(),
-	date: now,
-	merchant: 'Starbucks',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Coffebox',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Cafe',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Tea & Cookies',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Sunny Beach',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Hops',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}, {
-	id: increment(),
-	date: now,
-	merchant: 'Om-nom-nom',
-	amount: 100,
-	currency: 'USD',
-	category: 'HI',
-	details: 'Some details...'
-}];
-
 let filter = (state = {}, action) => {
 	switch(action.type) {
 		case ActionTypes.FILTER_UPDATED: 
@@ -72,8 +11,12 @@ let filter = (state = {}, action) => {
 	}
 }
 
-let records = (state = initialRecords, action) => {
+let records = (state = [], action) => {
 	switch(action.type) {
+		case ActionTypes.RECORDS_FETCHED:
+			return action.data.map(x => {
+				return {...x, date: new Date(x.date)};
+			});
 		case ActionTypes.RECORD_DELETED: 
 			return state.filter(x => x.id != action.id);
 		case ActionTypes.RECORD_MODIFIED:
@@ -100,8 +43,28 @@ let page = (state = { offset: 0, limit: 5 }, action) => {
 	}
 }
 
+let apiState = (state = {}, action) => {
+	switch(action.type) {
+		case ActionTypes.RECORDS_FETCHING:
+			return {...state, fetchingRecords: true };
+		case ActionTypes.RECORDS_FETCHED:
+			return {...state, fetchingRecords: false };
+		case ActionTypes.RECORD_CREATING:
+			return {...state, creatingRecord: true };
+		case ActionTypes.RECORD_CREATED:
+			return {...state, creatingRecord: false };
+		case ActionTypes.RECORD_DELETED:
+			return {...state, deletingRecord: null };
+		case ActionTypes.RECORD_DELETING:
+			return {...state, deletingRecord: { id: action.id } };
+		default:
+			return state;
+	}
+}
+
 export default combineReducers({
 	filter,
 	records,
-	page
+	page,
+	apiState
 });

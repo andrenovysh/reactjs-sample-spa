@@ -4,9 +4,10 @@ import { Router, Route, IndexRoute, IndexLink, Link, browserHistory } from 'reac
 
 import { activeLink, contentCentered, blurIn, blurOut, flexCenter } from './styles';
 
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import reducers from './reducers';
+import thunk from 'redux-thunk';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
@@ -49,7 +50,7 @@ import Records from './components/Records.jsx';
 import CreateRecord from './components/CreateRecord.jsx';
 import RecordDetails from './components/RecordDetails.jsx';
 
-let store = createStore(reducers);
+let store = createStore(reducers, applyMiddleware(thunk));
 
 let router = 	<Provider store={store}>
 					<Router history={browserHistory}>
