@@ -10,11 +10,26 @@ export const RECORDS_FETCHED = 'RECORDS_FETCHED';
 
 let parseJSON = (response) => response.json();
 
-export const fetchRecords = (filter, page) => {
+export const fetchRecords = (parameters) => {
 	return (dispatch, getState) => {
-		dispatch({type: RECORDS_FETCHING});
+		dispatch({
+			type: RECORDS_FETCHING,
+			parameters: parameters
+		});
 
-		fetch('/records').then(parseJSON)
+		let query = '';
+		for(let key in parameters) {
+			if(parameters[key] != undefined) {
+				query +=  key + '=' + parameters[key] + '&';
+			}
+		}
+
+		let url = '/records';
+		if(query !== undefined) {
+			url += "?" + query;
+		}
+
+		fetch(url).then(parseJSON)
 			.then(data => {
 				dispatch({
 					type: RECORDS_FETCHED,
@@ -78,18 +93,6 @@ export const filterUpdated = (filter) => {
 		type: FILTER_UPDATED,
 		filter: {
 			merchant: filter
-		}
-	}
-}
-
-export const PAGE_REQUESTED = 'PAGE_REQUESTED';
-
-export const pageRequested = (offset, limit) => {
-	return {
-		type: PAGE_REQUESTED,
-		parameters: {
-			offset,
-			limit
 		}
 	}
 }

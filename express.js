@@ -68,12 +68,76 @@ var store = [{
 	currency: 'USD',
 	category: 'HI',
 	details: 'Some details...'
+}, {
+	id: increment(),
+	date: now,
+	merchant: 'Starbucks',
+	amount: 100,
+	currency: 'USD',
+	category: 'HI',
+	details: 'Some details...'
+}, {
+	id: increment(),
+	date: now,
+	merchant: 'Starbucks',
+	amount: 100,
+	currency: 'USD',
+	category: 'HI',
+	details: 'Some details...'
+}, {
+	id: increment(),
+	date: now,
+	merchant: 'Starbucks',
+	amount: 100,
+	currency: 'USD',
+	category: 'HI',
+	details: 'Some details...'
+}, {
+	id: increment(),
+	date: now,
+	merchant: 'Starbucks',
+	amount: 100,
+	currency: 'USD',
+	category: 'HI',
+	details: 'Some details...'
+}, {
+	id: increment(),
+	date: now,
+	merchant: 'Starbucks',
+	amount: 100,
+	currency: 'USD',
+	category: 'HI',
+	details: 'Some details...'
 }];
+
+function paginate (source, offset, limit) {
+	return source.slice(offset, offset + limit);
+}
 
 app.use(express.static('build'));
 
 app.get('/records', function (req, res) {
-  res.send(store);
+	console.log(req.query);
+
+	var offset = req.query.offset;
+	var limit = req.query.limit;
+	var filter = req.query.filter;
+
+	var records = store;
+
+	if(filter != undefined) {
+		records = records.filter(function(item) {
+			return item.merchant && item.merchant.indexOf(filter) >= 0;
+		});
+	}
+
+	var total = records.length;
+
+	if(offset != undefined && limit != undefined) {
+		records = paginate(records, offset, limit);
+	}
+	
+  	res.send({ records: records, total: total });
 });
 
 app.delete('/records', function (req, res) {

@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { TextField } from 'material-ui';
+import { connect } from 'react-redux';
 
-let RecordsFilter = ({onFilterUpdated}) => {
-	return <TextField 
+class RecordsFilter extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			value: props.value
+		};
+	}
+
+	onValueUpdated(e) {
+		this.setState({ 
+			value: e.currentTarget.value
+		});
+	}
+
+	render() {
+		return <TextField 
+				value={this.state.value} 
+				onChange={this.onValueUpdated.bind(this)}
     			hintText="Merchant"
 				floatingLabelText="Merchant contains"
-				onBlur={(e) => onFilterUpdated(e.currentTarget.value)} />
+				onBlur={(e) => this.props.onFilterUpdated(e.currentTarget.value)} />
+	}
 }
 
-export default RecordsFilter;
+RecordsFilter.propTypes = {
+	onFilterUpdated: PropTypes.func.isRequired
+}
+
+let mapState2Props = (state) => {
+	return {
+		value: state.fetchParameters.filter
+	};
+}
+
+export default connect(mapState2Props)(RecordsFilter);

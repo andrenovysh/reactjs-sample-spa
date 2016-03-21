@@ -2,19 +2,10 @@ import { combineReducers } from 'redux';
 import { increment } from '../utils';
 import * as ActionTypes from '../actions';
 
-let filter = (state = {}, action) => {
-	switch(action.type) {
-		case ActionTypes.FILTER_UPDATED: 
-			return {...state.filter, ...action.filter};
-		default:
-			return state;
-	}
-}
-
 let records = (state = [], action) => {
 	switch(action.type) {
 		case ActionTypes.RECORDS_FETCHED:
-			return action.data.map(x => {
+			return action.data.records.map(x => {
 				return {...x, date: new Date(x.date)};
 			});
 		case ActionTypes.RECORD_DELETED: 
@@ -34,9 +25,18 @@ let records = (state = [], action) => {
 	}
 }
 
-let page = (state = { offset: 0, limit: 5 }, action) => {
+let recordsTotal = (state = 0, action) => {
 	switch(action.type) {
-		case ActionTypes.PAGE_REQUESTED:
+		case ActionTypes.RECORDS_FETCHED:
+			return action.data.total;
+		default:
+			return 0;
+	}
+}
+
+let fetchParameters = (state = { offset: 0, limit: 5, filter: '' }, action) => {
+	switch(action.type) {
+		case ActionTypes.RECORDS_FETCHING:
 			return {...action.parameters};
 		default:
 			return state;
@@ -63,8 +63,8 @@ let apiState = (state = {}, action) => {
 }
 
 export default combineReducers({
-	filter,
 	records,
-	page,
-	apiState
+	fetchParameters,
+	apiState,
+	recordsTotal
 });

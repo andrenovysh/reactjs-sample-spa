@@ -9,31 +9,19 @@ import { categoryItems, bindDispatch } from '../utils'
 import EditRecord from './EditRecord.jsx';
 import RecordsFilter from './RecordsFilter.jsx';
 
-let paginate = (source, offset, limit) => {
-	return source.slice(offset, offset + limit);
-}
-
 let mapState2Props = (state) => {
-	let filtered = state.records;
-
-	if(state.filter.merchant) {
-		filtered = filtered.filter(x => x.merchant && x.merchant.indexOf(state.filter.merchant) >= 0);
-	}
-
 	return {
 		fetchingRecords: state.apiState.fetchingRecords,
-		records: filtered,
-		recordsPage: paginate(filtered, state.page.offset, state.page.limit),
-		page: {...state.page}
+		records: state.records,
+		recordsTotal: state.recordsTotal,
+		fetchParameters: {...state.fetchParameters}
 	}
 }
 
-let mapDispatch2Props = (dispatch) => {
+let mapDispatch2Props = (dispatch, ownProps) => {
 	return {
 		saveRecord: bindDispatch(dispatch, recordSaved),
 		deleteRecord: bindDispatch(dispatch, deleteRecord),
-		filterUpdated: bindDispatch(dispatch, filterUpdated),
-		pageRequested: bindDispatch(dispatch, pageRequested),
 		fetchRecords: bindDispatch(dispatch, fetchRecords)
 	}
 }
@@ -47,7 +35,11 @@ class Records extends React.Component {
 			editedRecord: null
 		};
 
-		this.props.fetchRecords();
+		this.props.fetchRecords({
+			filter: this.props.fetchParameters.merchant,
+			offset: this.props.fetchParameters.offset,
+			limit: this.props.fetchParameters.limit
+		});
 	}
 
 	onEdit(record) {
@@ -70,8 +62,12 @@ class Records extends React.Component {
 		});
 	}
 
-	onPageClick() {
-
+	onFilterUpdated(value) {
+		this.props.fetchRecords({ 
+			filter: value, 
+			offset: this.props.fetchParameters.offset, 
+			limit: this.props.fetchParameters.limit 
+		});
 	}
 
 	render() {
@@ -88,7 +84,7 @@ class Records extends React.Component {
 		const rowStyle = rowStyleDefaults;
 		const disabledRowStyle = { ...rowStyleDefaults, ...disabledRow };
 
-		var rows = this.props.recordsPage.map((item, index) => {
+		var rows = this.props.records.map((item, index) => {
 			let isAnyItemEdited = this.state.editedRecord;
 			let isCurrentItemEditable = false;
 			let currentRowStyle = rowStyle;
@@ -157,12 +153,15 @@ class Records extends React.Component {
 			}
 		};
 
-		let offset = this.props.page.offset;
-		let limit = this.props.page.limit;
-		let total = this.props.records.length;
+		let offset = this.props.fetchParameters.offset;
+		let limit = this.props.fetchParameters.limit;
+		let total = this.props.recordsTotal;
+
+		let nextPageParameters = { filter: this.props.fetchParameters.filter, offset: offset + limit, limit };
+		let prevPageParameters = { filter: this.props.fetchParameters.filter, offset: offset - limit, limit };
 
 		return 	<div>
-					<RecordsFilter onFilterUpdated={this.props.filterUpdated} />
+					<RecordsFilter onFilterUpdated={this.onFilterUpdated.bind(this)} />
 					<Table>
 					    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
 					    	<TableRow>
@@ -181,10 +180,10 @@ class Records extends React.Component {
 						<TableFooter>
 							<TableRow>
 								<TableRowColumn style={styles.footerContent}>
-								<IconButton disabled={offset === 0} onClick={this.props.pageRequested.bind(null, offset - limit, limit)}>
+								<IconButton disabled={offset === 0} onClick={this.props.fetchRecords.bind(null, prevPageParameters)}>
 									<FontIcon className="material-icons">{'<'}</FontIcon>
 								</IconButton>
-								<IconButton disabled={offset + limit >= total} onClick={this.props.pageRequested.bind(null, offset + limit, limit)}>
+								<IconButton disabled={offset + limit >= total} onClick={this.props.fetchRecords.bind(null, nextPageParameters)}>
 									<FontIcon className="material-icons">{'>'}</FontIcon>
 								</IconButton>
 								</TableRowColumn>
